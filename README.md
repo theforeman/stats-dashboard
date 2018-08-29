@@ -2,6 +2,8 @@
 
 This is a ShinyR webapp for displaying data on the Foreman community.
 
+The latest deployment can be found [here](http://140.211.167.4:3838/gregsutcliffe)
+
 # Deployment
 
 Follow the [RStudio Shiny Install Guide](http://docs.rstudio.com/shiny-server/#installation)
