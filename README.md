@@ -20,3 +20,10 @@ on an offline DB created from one of the backups). It will output
 `/tmp/issues.csv` which can be copied to the stats box.
 
 # Graphs
+
+### Open issues by Category
+
+Currently the only graph, this shows issues where `is_open == TRUE` and then
+subsets by `category` and `triaged`. Since we have many categories, this is a
+bit messy, so checkboxes are provided to be able to select whichever categories
+are of interest.
