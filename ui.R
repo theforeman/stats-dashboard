@@ -18,6 +18,8 @@ shinyUI(fluidPage(
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(
+      selectInput("project", "Project:",
+                  c("Foreman"),c("Foreman")),
       checkboxGroupInput('all_none','Select All/None',c('All','None')),
       checkboxGroupInput('cats', 'Categories')
     ),
@@ -25,7 +27,7 @@ shinyUI(fluidPage(
     # Show a plot of the generated distribution
     mainPanel(
        plotOutput("categories"),
-       textOutput('text')
+       tableOutput('data')
     )
   )
 ))
