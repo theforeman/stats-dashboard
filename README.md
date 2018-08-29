@@ -27,3 +27,11 @@ Currently the only graph, this shows issues where `is_open == TRUE` and then
 subsets by `category` and `triaged`. Since we have many categories, this is a
 bit messy, so checkboxes are provided to be able to select whichever categories
 are of interest.
+
+# TODO
+
+* more redmine graphs
+* github
+* discourse
+* automate data collection
+  * Redmine could parse the data locally using the R script, and put the csv in /public/ ...
