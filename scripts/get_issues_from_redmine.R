@@ -21,10 +21,10 @@ i <- merge(i,cats,by.x = c('category_id','project_id'), by.y = c('id','project_i
   select(-category_id,-name)
 i$category[is.na(i$category)] <- 'Uncategorized'
 
-projs <- tbl(redmine,'projects') %>% select(id,name) %>% collect()
-i <- merge(i,projs,by.x = 'project_id', by.y = 'id',all.x=T) %>%
+projs <- tbl(redmine,'projects') %>% filter(status == 1) %>% select(id,name) %>% collect()
+i <- merge(i,projs,by.x = 'project_id', by.y = 'id') %>%
   mutate(project = name) %>%
-  select(-project_id,-name)
+  select(-name)
 
 tracks <- tbl(redmine,'trackers') %>% select(id,name) %>% collect()
 i <- merge(i,tracks,by.x = 'tracker_id', by.y = 'id',all.x=T) %>%
