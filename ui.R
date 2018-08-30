@@ -34,7 +34,8 @@ shinyUI(fluidPage(
       p('Shows the number of open bugs per category for the selected project.
         The proportion of bugs flagged as "Triaged" is shown in colour.'),
       p('Use the slect box on the left to pick a new project, or the checkboxes
-        to limit which categories are shown.')
+        to limit which categories are shown.'),
+      dygraphOutput('open_closed')
     )
   )
 ))

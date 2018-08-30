@@ -10,7 +10,7 @@ redmine <- dbConnect(dbDriver("PostgreSQL"), dbname='redminedev')
 issues <- tbl(redmine, 'issues')
 
 i<- issues %>%
-  select(id,project_id,tracker_id,category_id,status_id,fixed_version_id,closed_on,created_on) %>%
+  select(id,project_id,tracker_id,category_id,status_id,fixed_version_id,closed_on,created_on,updated_on) %>%
   collect()
 
 # Get categories, projects, trackers, status, versions

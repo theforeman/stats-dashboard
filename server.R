@@ -11,8 +11,11 @@ library(shiny)
 library(dplyr)
 library(magrittr)
 library(ggplot2)
+library(lubridate)
+library(xts)
+library(dygraphs)
 
-issues <- read.csv('/tmp/issues.csv')
+issues <- read.csv('/tmp/issues.csv', stringsAsFactors = F)
 projs <- issues %>% select(project,project_id) %>% unique() %>% arrange(project)
 cats <- sort(unique(issues %>%
                       filter(project == 'Foreman', is_open == T) %>%
@@ -85,4 +88,37 @@ shinyServer(function(input, output, session) {
       scale_fill_discrete(name = element_blank(),labels = c('Untriaged','Triaged'))
     })
 
+  output$open_closed <- renderDygraph({
+
+    res <- data.frame(
+      day=seq(
+        from=date(min(issues$created_on)),
+        to=date(max(issues$updated_on)),
+        by="1 day")
+    )
+
+    opened <- issues %>%
+      transmute(created_on = date(created_on)) %>% #strip times, keep dates
+      group_by(created_on) %>%
+      count()
+
+    res <- merge(res,opened,by.x="day",by.y='created_on',all.x=TRUE)
+    res[is.na(res$n),"n"] <- 0
+
+    closed <- issues %>%
+      select(closed_on) %>%
+      na.omit() %>%
+      transmute(closed_on = date(closed_on)) %>%
+      group_by(closed_on) %>%
+      count()
+
+    res <- merge(res,closed,by.x="day",by.y='closed_on',all.x=TRUE)
+    res[is.na(res$n.y),"n.y"] <- 0
+
+    cumsum <- res %>% transmute(day=day,opened=cumsum(n.x),closed=cumsum(n.y))
+
+    x<-xts(select(cumsum, -day),cumsum$day)
+    dygraph(x, main = 'Open/Closed bugs (all projects)',xlab = 'Click-drag to zoom on a region')
+
+  })
 })
