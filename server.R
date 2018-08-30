@@ -79,7 +79,7 @@ shinyServer(function(input, output, session) {
       group_by(category) %>%
       ggplot(aes(x=category,fill=triaged)) +
       geom_bar(position = 'stack') +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
       theme(axis.title.x = element_blank()) +
       ylab('Open Issues') +
       scale_fill_discrete(name = element_blank(),labels = c('Untriaged','Triaged'))
