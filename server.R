@@ -13,18 +13,20 @@ library(magrittr)
 library(ggplot2)
 
 issues <- read.csv('/tmp/issues.csv')
-projs <- sort(unique(issues$project))
+projs <- issues %>% select(project,project_id) %>% unique() %>% arrange(project)
 cats <- sort(unique(issues %>%
                       filter(project == 'Foreman', is_open == T) %>%
                       use_series(category)))
+base_url <- 'https://projects.theforeman.org/issues?utf8=%E2%9C%93&set_filter=1&sort=id%3Adesc&f[]=status_id&op[status_id]=o&f[]=project_id&op[project_id]=%3D&f[]=&c[]=project&c[]=tracker&c[]=status&c[]=subject&c[]=assigned_to&c[]=updated_on&c[]=category&c[]=fixed_version&c[]=cf_5&group_by=cf_5&t[]=&v[project_id][]='
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
-  updateSelectInput(session,"project",'Project',projs, 'Foreman')
+  updateSelectInput(session,"project",'Project',projs$project, 'Foreman')
 
   updateCheckboxGroupInput(session, "cats",
                            choices = cats,
                            selected = cats)
+
   observe({
     cats <- sort(unique(issues %>%
                           filter(project == input$project, is_open == T) %>%
@@ -32,6 +34,7 @@ shinyServer(function(input, output, session) {
 
     updateCheckboxGroupInput(session, "cats", choices = cats, selected = cats)
   })
+
   observe({
     cats <- sort(unique(issues %>%
                           filter(project == input$project, is_open == T) %>%
@@ -53,6 +56,21 @@ shinyServer(function(input, output, session) {
 
   })
 
+  output$project <- renderUI({
+    h3(paste('Open Issues by Category & Triage: ',input$project))
+  })
+  output$header <- renderUI({
+    a(
+      h4(
+        'Open in Redmine',
+        class = "btn btn-default action-button",
+        style = "fontweight:600"
+      ),
+      target = "_blank",
+      href = (paste0(base_url, projs[projs$project==input$project,]$project_id))
+    )
+  })
+
   output$categories <- renderPlot({
 
     issues %>%
@@ -64,8 +82,7 @@ shinyServer(function(input, output, session) {
       theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
       theme(axis.title.x = element_blank()) +
       ylab('Open Issues') +
-      scale_fill_discrete(name = element_blank(),labels = c('Untriaged','Triaged')) +
-      ggtitle(paste('Open Issues by Category and Triage ( Project:',input$project,')'))
-  })
+      scale_fill_discrete(name = element_blank(),labels = c('Untriaged','Triaged'))
+    })
 
 })
