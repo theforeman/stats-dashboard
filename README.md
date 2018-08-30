@@ -10,6 +10,11 @@ Follow the [RStudio Shiny Install Guide](http://docs.rstudio.com/shiny-server/#i
 
 Once Shiny is up, copy this repo to the appropriate webapp dir (e.g. /srv/shiny-server/foreman)
 
+## Development setup
+
+Install [RStudio](https://www.rstudio.com) and then clone this repo. Open
+`UI.R` and `server.R`, and RStudio should offer to run the webapp locally.
+
 # Local data
 
 Currently the app uses cached data from our other services. The `scripts` dir
