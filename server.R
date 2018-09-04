@@ -12,8 +12,9 @@ library(dplyr)
 library(magrittr)
 library(ggplot2)
 library(lubridate)
-library(xts)
-library(dygraphs)
+library(plotly)
+
+users <- read.csv('/tmp/users.csv', stringsAsFactors = F, colClasses = c('numeric','Date'))
 
 issues <- read.csv('/tmp/issues.csv', stringsAsFactors = F)
 projs <- issues %>% select(project,project_id) %>% unique() %>% arrange(project)
@@ -88,7 +89,7 @@ shinyServer(function(input, output, session) {
       scale_fill_discrete(name = element_blank(),labels = c('Untriaged','Triaged'))
     })
 
-  output$open_closed <- renderDygraph({
+  output$open_closed <- renderPlotly({
 
     res <- data.frame(
       day=seq(
@@ -115,10 +116,27 @@ shinyServer(function(input, output, session) {
     res <- merge(res,closed,by.x="day",by.y='closed_on',all.x=TRUE)
     res[is.na(res$n.y),"n.y"] <- 0
 
-    cumsum <- res %>% transmute(day=day,opened=cumsum(n.x),closed=cumsum(n.y))
+    cumsum <- res %>%
+      transmute(day=day,opened=cumsum(n.x),closed=cumsum(n.y)) %>%
+      gather(opened,closed,-day)
 
-    x<-xts(select(cumsum, -day),cumsum$day)
-    dygraph(x, main = 'Open/Closed bugs (all projects)',xlab = 'Click-drag to zoom on a region')
+    plot_ly(cumsum, x = ~day, y = ~closed, type = 'scatter', mode = 'lines', color = ~opened) %>%
+      layout(title = "Open / Closed Bugs, all time",
+             xaxis = list(title = "Time"),
+             yaxis = list (title = "Cumulative Bugs"))
+  })
 
+  output$users <- renderPlotly({
+    plot_ly(data = users, x = users$created_on, type = 'histogram') %>%
+      layout(title = "'Age' of recent Redmine users (last 6 months)",
+             xaxis = list(title = "Time"),
+             yaxis = list (title = "Count"))
+
+  })
+  output$users_box <- renderPlotly({
+    plot_ly(data = users, x = users$created_on, type = 'box') %>%
+      layout(title = "'Age' of recent Redmine users (last 6 months)",
+             xaxis = list(title = "Time"),
+             yaxis = list (title = ""))
   })
 })
