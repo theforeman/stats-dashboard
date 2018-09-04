@@ -2,6 +2,7 @@ library(RPostgreSQL)
 library(dplyr)
 library(dbplyr)
 library(lubridate)
+library(magrittr)
 
 # Local copy of the DB
 redmine <- dbConnect(dbDriver("PostgreSQL"), dbname='redminedev')
