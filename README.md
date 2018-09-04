@@ -13,12 +13,19 @@ Once Shiny is up, copy this repo to the appropriate webapp dir (e.g. /srv/shiny-
 ## Development setup
 
 Install [RStudio](https://www.rstudio.com) and then clone this repo. Open
-`UI.R` and `server.R`, and RStudio should offer to run the webapp locally.
+`UI.R` and `server.R`, and RStudio should be able to run the webapp locally.
+
+# Graphs
+
+The graphs are tabbed by category, and should contain descriptions of the data
+they present (and the interpretation, where appropriate).
 
 # Local data
 
 Currently the app uses cached data from our other services. The `scripts` dir
 contains the necessary scripts.
+
+TODO: automate this...
 
 ### get_issues_from_redmine
 
@@ -26,14 +33,11 @@ This needs to be run against the Redmine DB (either directly on redmine01, or
 on an offline DB created from one of the backups). It will output
 `/tmp/issues.csv` which can be copied to the stats box.
 
-# Graphs
+### get_recent_users
 
-### Open issues by Category
-
-Currently the only graph, this shows issues where `is_open == TRUE` and then
-subsets by `category` and `triaged`. Since we have many categories, this is a
-bit messy, so checkboxes are provided to be able to select whichever categories
-are of interest.
+This needs to be run against the Redmine DB (either directly on redmine01, or
+on an offline DB created from one of the backups). It will output
+`/tmp/users.csv` which can be copied to the stats box.
 
 # TODO
 
