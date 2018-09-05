@@ -1,14 +1,12 @@
+# Foreman Stats Shiny App
 #
 # This is the user-interface definition of a Shiny web application. You can
 # run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
 
 library(shiny)
 library(plotly)
+
+source('open_closed.R')
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
@@ -17,6 +15,7 @@ shinyUI(fluidPage(
   titlePanel("Foreman Community Stats"),
 
   tabsetPanel(
+    OpenClosedTab,
     tabPanel("Category Issues",
       sidebarLayout(
         sidebarPanel(
@@ -38,10 +37,6 @@ shinyUI(fluidPage(
             to limit which categories are shown.')
         )
       )
-    ),
-    tabPanel("Open/Closed",
-      plotlyOutput('open_closed'),
-      p('Open & Closed bugs over all time. TODO - filter by project / category :)')
     ),
     tabPanel("Users",
       plotlyOutput('users'),
