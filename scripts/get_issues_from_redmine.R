@@ -1,11 +1,24 @@
+# Script to parse the issues table into something useful
+
 library(RPostgreSQL)
 library(dplyr)
 library(dbplyr)
 library(lubridate)
 library(magrittr)
 
-# Local copy of the DB
-redmine <- dbConnect(dbDriver("PostgreSQL"), dbname='redminedev')
+# Requires the 'config' package
+config <- config::get("redmine")
+# Access the DB - requires an SSH tunnel to Redmime, e.g.
+#   ssh -L 5432:localhost:5432 user@projects.theforeman.org
+#
+# The credentials should be stored in config.yml in the project root dir
+config  <- config::get("redmine")
+redmine <- dbConnect(dbDriver(config$driver),
+                     dbname   = config$database,
+                     host     = config$server,
+                     port     = config$port,
+                     user     = config$user,
+                     password = config$pwd)
 
 # Issues table
 issues <- tbl(redmine, 'issues')
@@ -62,3 +75,5 @@ i$triaged[is.na(i$triaged)] <- 0
 i <- mutate(i, triaged = as.logical(triaged))
 
 write.csv(i,'/tmp/issues.csv',row.names = F)
+
+dbDisconnect(redmine)

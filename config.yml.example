@@ -1,0 +1,8 @@
+default:
+  redmine:
+    driver: 'PostgreSQL'
+    server: 'localhost'
+    user: 'redmine'
+    pwd: 'redminepw'
+    port: 5432
+    database: 'redmine'

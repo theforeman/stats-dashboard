@@ -1,5 +1,6 @@
-.Rproj.user
-.Rhistory
 .RData
+.Rhistory
+.Rproj.user
 .Ruserdata
+config.yml
 StatsDashboard.Rproj

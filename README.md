@@ -23,9 +23,9 @@ they present (and the interpretation, where appropriate).
 # Local data
 
 Currently the app uses cached data from our other services. The `scripts` dir
-contains the necessary scripts.
-
-TODO: automate this...
+contains the necessary scripts. These scripts require access to the Redmine DB,
+via an SSH tunnel (or running on Redmine itself), and use `config.yml` for storing
+credentials.
 
 ### get_issues_from_redmine
 
