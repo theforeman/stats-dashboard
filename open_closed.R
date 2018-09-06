@@ -6,53 +6,16 @@ library(lubridate)
 library(dplyr)
 library(tidyr)
 
-# UI Elements -------------------------------------------------------------
-
-OpenClosedTab = tabPanel("Open/Closed",
-  sidebarLayout(
-    mainPanel(
-      plotlyOutput('open_closed')
-    ),
-    sidebarPanel(
-      p('Open & Closed bugs over all time. WIP!'),
-      p('Drag-select a region of the graph, and the data below will update to match'),
-      tableOutput('open_closed_table'),
-      p('TODO - Filter by project / category')
-    )
-  )
-)
-
-# Server Elements ---------------------------------------------------------
-
-OpenClosedGraph <- function() {
-  p<-ggplot(global_cumsum,aes(x = day, y = count, colour = state)) +
-    geom_line() +
-    theme_gray() +
-    xlab('Date') + ylab('Number of bugs') + ggtitle('Open/Closed bugs per day')
-  ggplotly(p) %>% layout(legend = list(traceorder='reversed',orientation='h'))
-}
-
-OpenClosedTable <- function(interval) {
-  subset = global_cumsum %>% filter(day %within% interval)
-
-  models <- subset %>%
-    group_by(state) %>%
-    dplyr::do(model = lm(count ~ day, data = .)) %>%
-    mutate(coef = model$coef[2])
-
-  table <- subset %>%
-    group_by(state) %>%
-    mutate(max = dplyr::last(count)) %>%
-    group_by(state,max) %>%
-    summarise() %>%
-    bind_cols(coef = models$coef) %>%
-    mutate(max = as.integer(max)) %>%
-    rename(State = state,Total=max,`Rate of Increase`=coef)
-}
-
 # Helpers -----------------------------------------------------------------
 
-build_cumsum = function(issues) {
+build_cumsum = function(input_project) {
+
+  # Filter issues by project
+  if (input_project == 'All') {
+    issues = global_issues
+  } else {
+    issues = filter(global_issues, project == input_project)
+  }
 
   # Build a time series to hold cumsum
   result <- data.frame(
@@ -88,7 +51,60 @@ build_cumsum = function(issues) {
   result
 }
 
-# OnSource -----------------------------------------------------------------
 
-issues        = read.csv('/tmp/issues.csv', stringsAsFactors = F)
-global_cumsum = build_cumsum(issues)
+# OnSource (static info) ------------------------------------------------
+
+global_issues = read.csv('/tmp/issues.csv', stringsAsFactors = F)
+global_cumsum = build_cumsum('All')
+global_projects = c('All',distinct(global_issues,project))
+
+# UI Elements -------------------------------------------------------------
+
+OpenClosedTab = tabPanel("Open/Closed",
+                         sidebarLayout(
+                           mainPanel(
+                             plotlyOutput('open_closed')
+                           ),
+                           sidebarPanel(
+                             wellPanel(
+                               selectInput("open_closed_project", "Project:",
+                                           global_projects,"All")
+                             ),
+                             p('Open & Closed bugs over all time. WIP!'),
+                             p('Drag-select a region of the graph, and the data below will update to match'),
+                             tableOutput('open_closed_table'),
+                             p('TODO - Filter by project / category')
+                           )
+                         )
+)
+
+# Server Elements ---------------------------------------------------------
+
+OpenClosedGraph <- function(project) {
+  cumsum = build_cumsum(project)
+  p<-ggplot(cumsum,aes(x = day, y = count, colour = state)) +
+    geom_line() +
+    theme_gray() +
+    xlab('Date') + ylab('Number of bugs') + ggtitle('Open/Closed bugs per day')
+  ggplotly(p) %>% layout(legend = list(traceorder='reversed',orientation='h'))
+}
+
+OpenClosedTable <- function(interval,project) {
+  print(project)
+  cumsum = build_cumsum(project)
+  subset = cumsum %>% filter(day %within% interval)
+
+  models <- subset %>%
+    group_by(state) %>%
+    dplyr::do(model = lm(count ~ day, data = .)) %>%
+    mutate(coef = model$coef[2])
+
+  table <- subset %>%
+    group_by(state) %>%
+    mutate(max = dplyr::last(count)) %>%
+    group_by(state,max) %>%
+    summarise() %>%
+    bind_cols(coef = models$coef) %>%
+    mutate(max = as.integer(max)) %>%
+    rename(State = state,Total=max,`Rate of Increase`=coef)
+}

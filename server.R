@@ -28,12 +28,13 @@ shinyServer(function(input, output, session) {
 
   # Open/Closed
   output$open_closed <- renderPlotly({
-    OpenClosedGraph()
+    OpenClosedGraph(input$open_closed_project)
   })
 
   # Rebuild LM table on graph zoom
   observe({
-    d <- event_data("plotly_relayout") # get new viewport, returns integer:days
+    proj = input$open_closed_project
+    d    = event_data("plotly_relayout") # get new viewport, returns integer:days
     if (is.null(d)) {
       interval = min(issues$created_on) %--% max(issues$updated_on)
     } else {
@@ -41,7 +42,7 @@ shinyServer(function(input, output, session) {
       max = date('1970-01-01') + days(as.integer(d[2][1]))
       interval = min %--% max
     }
-    output$open_closed_table <- renderTable({OpenClosedTable(interval)},bordered = T)
+    output$open_closed_table <- renderTable({OpenClosedTable(interval,proj)},bordered = T)
   })
 
   # Categories
