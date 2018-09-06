@@ -12,15 +12,15 @@ source('open_closed.R')
 shinyUI(fluidPage(
 
   # Application title
-  titlePanel("Foreman Community Stats"),
+  titlePanel('Foreman Community Stats'),
+  headerPanel(h4(paste("Last Updated:",file.info('/tmp/issues.csv')$ctime),
+                 style = "text-decoration: underline")),
 
   tabsetPanel(
     OpenClosedTab,
     tabPanel("Category Issues",
       sidebarLayout(
         sidebarPanel(
-          h5(paste('Last Updated:',file.info('/tmp/issues.csv')$ctime),
-            style = "text-decoration: underline"),
           selectInput("project", "Project:",
             c("Foreman"),c("Foreman")),
           checkboxGroupInput('all_none','Select All/None',c('All','None')),
