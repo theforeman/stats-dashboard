@@ -45,9 +45,9 @@ build_cumsum = function(input_project) {
   result[is.na(result$n.y),"n.y"] <- 0
 
   result <- result %>%
-    transmute(day=day,opened=cumsum(n.x),closed=cumsum(n.y)) %>%
+    mutate(net = n.x-n.y) %>%
+    transmute(day = day, opened = cumsum(n.x), closed = cumsum(n.y), net.open = cumsum(net)) %>%
     gather(state, count, -day)
-
   result
 }
 
@@ -63,36 +63,40 @@ global_projects = c('All',distinct(global_issues,project))
 OpenClosedTab = tabPanel("Open/Closed",
                          sidebarLayout(
                            mainPanel(
-                             plotlyOutput('open_closed')
+                             plotlyOutput('open_closed_graph')
                            ),
                            sidebarPanel(
                              wellPanel(
                                selectInput("open_closed_project", "Project:",
-                                           global_projects,"All")
+                                           global_projects,"All"),
+                               dateRangeInput("open_closed_interval", "Date range:",
+                                              start = now() - years(3),
+                                              end   = now(),
+                                              startview = 'year'
+                               )
                              ),
-                             p('Open & Closed bugs over all time. WIP!'),
-                             p('Drag-select a region of the graph, and the data below will update to match'),
                              tableOutput('open_closed_table'),
-                             p('TODO - Filter by project / category')
+                             p('Select a region of the plot (or a new project) to update this table'),
+                             p('TODO - Filter by category (or use a table?')
                            )
                          )
 )
 
 # Server Elements ---------------------------------------------------------
 
-OpenClosedGraph <- function(project) {
+OpenClosedGraph <- function(interval,project) {
   cumsum = build_cumsum(project)
-  p<-ggplot(cumsum,aes(x = day, y = count, colour = state)) +
+  subset = filter(cumsum, day %within% (interval[1] %--% interval[2]))
+  p<-ggplot(subset,aes(x = day, y = count, colour = state)) +
     geom_line() +
     theme_gray() +
-    xlab('Date') + ylab('Number of bugs') + ggtitle('Open/Closed bugs per day')
+    xlab('Date') + ylab('Number of bugs') + ggtitle('Cumulative Open/Closed bugs over time')
   ggplotly(p) %>% layout(legend = list(traceorder='reversed',orientation='h'))
 }
 
 OpenClosedTable <- function(interval,project) {
-  print(project)
   cumsum = build_cumsum(project)
-  subset = cumsum %>% filter(day %within% interval)
+  subset = filter(cumsum, day %within% (interval[1] %--% interval[2]))
 
   models <- subset %>%
     group_by(state) %>%

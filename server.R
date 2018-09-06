@@ -27,22 +27,27 @@ base_url <- 'https://projects.theforeman.org/issues?utf8=%E2%9C%93&set_filter=1&
 shinyServer(function(input, output, session) {
 
   # Open/Closed
-  output$open_closed <- renderPlotly({
-    OpenClosedGraph(input$open_closed_project)
-  })
 
   # Rebuild LM table on graph zoom
   observe({
-    proj = input$open_closed_project
+    proj = input$open_closed_project     # project picker
     d    = event_data("plotly_relayout") # get new viewport, returns integer:days
     if (is.null(d)) {
-      interval = min(issues$created_on) %--% max(issues$updated_on)
+      interval = c(min(issues$created_on),max(issues$updated_on))
     } else {
       min = date('1970-01-01') + days(as.integer(d[1][1]))
       max = date('1970-01-01') + days(as.integer(d[2][1]))
-      interval = min %--% max
+      interval = c(min,max)
     }
     output$open_closed_table <- renderTable({OpenClosedTable(interval,proj)},bordered = T)
+  })
+  observe({
+    proj     = input$open_closed_project
+    interval = input$open_closed_interval
+    output$open_closed_table <- renderTable({OpenClosedTable(interval,proj)},bordered = T)
+  })
+  output$open_closed_graph <- renderPlotly({
+    OpenClosedGraph(input$open_closed_interval,input$open_closed_project)
   })
 
   # Categories
