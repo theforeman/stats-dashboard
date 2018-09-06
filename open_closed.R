@@ -51,6 +51,17 @@ build_cumsum = function(input_project) {
   result
 }
 
+sanitise_interval <- function(interval) {
+  #check lower bound
+  if (interval[1] < min(global_issues$created_on) | interval[1] > max(global_issues$updated_on)) {
+    interval[1] = min(global_issues$created_on)
+  }
+  #check upper bound
+  if (interval[2] < min(global_issues$created_on) | interval[2] > max(global_issues$updated_on)) {
+    interval[2] = max(global_issues$updated_on)
+  }
+  interval
+}
 
 # OnSource (static info) ------------------------------------------------
 
@@ -86,15 +97,20 @@ OpenClosedTab = tabPanel("Open/Closed",
 
 OpenClosedGraph <- function(interval,project) {
   cumsum = build_cumsum(project)
-  subset = filter(cumsum, day %within% (interval[1] %--% interval[2]))
+  subset = filter(cumsum, day %within% (interval[1] %--% interval[2])) %>%
+             mutate(is.net = factor(state == 'net.open',
+                                    labels = c('Cumulative Open/Closed Bugs','Net Open Bugs')))
   p<-ggplot(subset,aes(x = day, y = count, colour = state)) +
     geom_line() +
+    facet_wrap(is.net ~ ., scales = 'free_y') +
     theme_gray() +
-    xlab('Date') + ylab('Number of bugs') + ggtitle('Cumulative Open/Closed bugs over time')
-  ggplotly(p) %>% layout(legend = list(traceorder='reversed',orientation='h'))
+    xlab('Date') + ylab('Number of bugs')
+  ggplotly(p) %>% layout(legend = list(x = 0.01, y = 0.95))
 }
 
 OpenClosedTable <- function(interval,project) {
+  interval = sanitise_interval(interval)
+
   cumsum = build_cumsum(project)
   subset = filter(cumsum, day %within% (interval[1] %--% interval[2]))
 
