@@ -39,9 +39,10 @@ OpenClosedTable <- function(interval) {
     group_by(state) %>%
     dplyr::do(model = lm(count ~ day, data = .)) %>%
     mutate(coef = model$coef[2])
+
   table <- subset %>%
     group_by(state) %>%
-    mutate(max=max(count)) %>%
+    mutate(max = dplyr::last(count)) %>%
     group_by(state,max) %>%
     summarise() %>%
     bind_cols(coef = models$coef) %>%
