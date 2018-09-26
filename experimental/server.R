@@ -18,7 +18,7 @@ library(ggplot2)
 library(lubridate)
 
 # Get this properly imported
-ttm_raw   = as.tibble(read.csv('/tmp/time_to_merge.csv',stringsAsFactors = F)) %>%
+ttm_raw   = as_tibble(read.csv('/tmp/time_to_merge.csv',stringsAsFactors = F)) %>%
   mutate(mergedAt = ymd_hms(mergedAt))
 ttm_month = ttm_raw %>%
   mutate(month = month(mergedAt),
@@ -40,7 +40,9 @@ shinyServer(function(input, output, session) {
 
     if (!length(s)) {
       p <- ttm_month %>%
-        plot_ly(x = ~date, y = ~ttm, mode = "markers", color = I('black')) %>%
+        ggplot(aes(x=date,y=ttm)) + geom_jitter()
+
+        ggplotly(p) %>%
         layout(showlegend = F)
     } else if (length(s)) {
       label = ttm_total[s,1]
