@@ -1,0 +1,4 @@
+# Useful Stats / Metrics tools
+
+This dir contains useful things that are not part of the stats dashboard itself. They are designed to
+be run from R / RStudio locally. Each one contains a README on how to use it
