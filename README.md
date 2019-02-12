@@ -2,7 +2,7 @@
 
 This is a ShinyR webapp for displaying data on the Foreman community.
 
-The latest deployment can be found [here](http://140.211.167.4:3838/gregsutcliffe)
+The latest deployment can be found [here](https://stats.theforeman.org)
 
 # Deployment
 
