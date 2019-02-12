@@ -1,0 +1,29 @@
+# Rackspace Cost summarizer
+
+This script loads in the CSV format invoices from Rackspace, and outputs data
+regarding the recent usage. All data is loaded, so it can be queried if
+comparisons to older months are required.
+
+# Requirements
+
+R packages: tidyverse, knitr, forcats, lubridate
+Data: the CSV invoices from Rackspace, or the backups on debugs.theforeman.org
+
+# Example run
+
+$ cp /tmp/invoices/*csv original-csv-files/.
+$ R
+
+> source('./graph-costs.R')
+
+(A graph window will open)
+
+# Notes
+
+The `costs` data frame will contain all the summed costs, which can be queried
+if need be. For other ways to slice the data, look in `rackspace-calc.R` for
+how the data is loaded and summarised.
+
+# Author
+
+Greg Sutcliffe <gsutclif AT redhat DOT com>
